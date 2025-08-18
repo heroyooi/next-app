@@ -1,8 +1,39 @@
 $primary: #2b6cb0;
 
+* { box-sizing: border-box; }
+
+:root {
+  --bg: #f7f8fa;
+  --text: #111;
+  --primary: #2b6cb0;
+}
+
 body {
   margin: 0;
-  font-family: system-ui, sans-serif;
-  color: #111;
+  background: var(--bg);
+  color: var(--text);
+  font-family: system-ui, -apple-system, Segoe UI, Roboto, 'Noto Sans KR', sans-serif;
 }
-h1 { color: $primary; }
+
+h1, h2 { color: $primary; }
+
+/* 공통 버튼 예시 */
+.btn {
+  display: inline-block;
+  padding: 10px 14px;
+  border-radius: 8px;
+  border: 1px solid rgba(0,0,0,.08);
+  background: white;
+  cursor: pointer;
+  transition: transform .05s ease, box-shadow .15s ease;
+
+  &:hover { box-shadow: 0 6px 20px rgba(0,0,0,.06); }
+  &:active { transform: translateY(1px); }
+
+  &--primary {
+    background: var(--primary);
+    color: #fff;
+    border-color: rgba(0,0,0,.1);
+  }
+}
+
