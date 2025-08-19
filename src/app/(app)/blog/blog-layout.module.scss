@@ -1,0 +1,23 @@
+.wrap {
+  padding: 24px;
+}
+.header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+.title {
+  margin: 0;
+  font-size: 22px;
+}
+.nav a {
+  margin-right: 10px;
+  text-decoration: none;
+}
+.content {
+  background: #fff;
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  border-radius: 12px;
+  padding: 20px;
+}
