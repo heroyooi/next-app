@@ -1,4 +1,4 @@
-import BlogListClient from './_components/BlogListClient';
+import BlogListClientLazy from './_components/BlogListClientLazy';
 
 export type Post = { id: string; title: string; excerpt: string };
 
@@ -30,7 +30,7 @@ export default async function BlogListPage() {
   return (
     <main style={{ padding: 24 }}>
       <h1>블로그</h1>
-      <BlogListClient posts={posts} />
+      <BlogListClientLazy posts={posts} />
     </main>
   );
 }

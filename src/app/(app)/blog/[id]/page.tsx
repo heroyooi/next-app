@@ -3,28 +3,12 @@ import dynamic from 'next/dynamic';
 import { notFound } from 'next/navigation';
 
 type PageProps = { params: { id: string } };
+type Post = { id: string; title: string; content: string };
 
-const POSTS = [
-  {
-    id: 'next-101',
-    title: 'Next.js란?',
-    content: 'App Router 입문 강좌입니다.',
-  },
-  {
-    id: 'routing-quick',
-    title: '파일 라우팅 빠르게 훑기',
-    content: '세그먼트/중첩/동적/그룹.',
-  },
-  {
-    id: 'scss-setup',
-    title: 'SCSS 적용 가이드',
-    content: '전역 SCSS + 모듈 SCSS.',
-  },
-  {
-    id: 'metadata-og',
-    title: 'Metadata & OG 이미지',
-    content: 'generateMetadata 활용',
-  },
+const POSTS: Post[] = [
+  { id: 'next-101', title: 'Next.js란?', content: 'App Router 입문 강좌입니다.' },
+  { id: 'routing-quick', title: '파일 라우팅 빠르게 훑기', content: '세그먼트/중첩/동적/그룹.' },
+  { id: 'scss-setup', title: 'SCSS 적용 가이드', content: '전역 SCSS + 모듈 SCSS.' },
 ];
 
 function getPostById(id: string) {
@@ -33,6 +17,17 @@ function getPostById(id: string) {
 
 export async function generateStaticParams() {
   return POSTS.map((p) => ({ id: p.id }));
+}
+
+async function getPost(id: string): Promise<Post | null> {
+  // 과제 1: slow일 때 1.2초 지연
+  if (id === 'slow') {
+    await new Promise((r) => setTimeout(r, 1200));
+    // 예시용 콘텐츠
+    return { id, title: '느린 글(slow) 테스트', content: 'loading.tsx 스트리밍 확인용' };
+  }
+  const post = POSTS.find(p => p.id === id);
+  return post ?? null;
 }
 
 export async function generateMetadata({
@@ -66,32 +61,25 @@ const Comments = dynamic(() => import('./_components/Comments'), {
 });
 
 export default async function BlogDetailPage({ params }: PageProps) {
-  // if (params.id === 'fail') {
-  //   // 서버 컴포넌트에서 에러를 던져 error.tsx로 흐름 위임
-  //   throw new Error('임의 에러 발생: fail 아이디는 허용되지 않습니다.');
-  // }
-  const post = getPostById(params.id);
-  if (!post) return notFound();
+  try {
+    // 예시: 특정 id에서 의도적 실패 유발
+    if (params.id === 'fail' || params.id === 'error' || params.id === 'fail-fetch') {
+      throw new Error('데이터를 불러오지 못했습니다.');
+    }
 
-  if (!post) {
+    const post = await getPost(params.id);
+    if (!post) return notFound();
+
     return (
       <main style={{ padding: 24 }}>
-        <h1>게시글을 찾을 수 없습니다.</h1>
-        <small>요청 id: {params.id}</small>
+        <h2 style={{ marginBottom: 6 }}>{post.title}</h2>
+        <small style={{ opacity: .7 }}>id: {params.id}</small>
+        <p style={{ marginTop: 14, whiteSpace: 'pre-wrap' }}>{post.content}</p>
       </main>
     );
+  } catch (e) {
+    // 에러 바운더리로 전달
+    throw e instanceof Error ? e : new Error('데이터를 불러오지 못했습니다.');
   }
-
-  return (
-    <main style={{ padding: 24 }}>
-      <h2 style={{ marginBottom: 6 }}>{post.title}</h2>
-      <small style={{ opacity: 0.7 }}>id: {params.id}</small>
-      <p style={{ marginTop: 14, whiteSpace: 'pre-wrap' }}>{post.content}</p>
-
-      {/* 접속 후 한 템포 뒤 로딩 → 초기 번들 부담 완화 */}
-      <section style={{ marginTop: 24 }}>
-        <Comments postId={params.id} />
-      </section>
-    </main>
-  );
 }
+
