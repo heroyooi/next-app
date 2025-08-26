@@ -1,23 +1,19 @@
 import BlogListClientLazy from './_components/BlogListClientLazy';
 
-export type Post = { id: string; title: string; excerpt: string };
+export type Post = {
+  id: string;
+  title: string;
+  excerpt: string;
+  cover: string;
+};
 
 async function getPosts(): Promise<Post[]> {
-  // 실제로는 DB/API 호출
-  return [
-    { id: 'next-101', title: 'Next.js란?', excerpt: 'App Router 기초 정리' },
-    {
-      id: 'routing-quick',
-      title: '파일 라우팅 빠르게 훑기',
-      excerpt: '세그먼트/중첩/동적',
-    },
-    { id: 'scss-setup', title: 'SCSS 적용 가이드', excerpt: '전역/모듈 SCSS' },
-    {
-      id: 'metadata-og',
-      title: 'Metadata & OG 이미지',
-      excerpt: 'generateMetadata 활용',
-    },
-  ];
+  const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/posts`, {
+    // 60초 주기로 ISR
+    next: { revalidate: 60, tags: ['posts'] },
+  });
+  if (!res.ok) throw new Error('목록을 불러오지 못했습니다.');
+  return res.json();
 }
 
 export const metadata = {
