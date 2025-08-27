@@ -1,45 +1,33 @@
-import type { Metadata } from 'next';
-import dynamic from 'next/dynamic';
 import { notFound } from 'next/navigation';
-import CoverImage from '../_components/CoverImage';
+import dynamic from 'next/dynamic';
 
-type PageProps = { params: { id: string } };
-type Post = { id: string; title: string; content: string; cover?: string };
-const MAP: Record<string, Post> = {
-  'next-101': {
-    id: 'next-101',
-    title: 'Next.js란?',
-    content: 'App Router 입문 강좌입니다.',
-  },
+type PageProps = { params: Promise<{ id: string }> };
+
+const MAP = {
+  'next-101': { title: 'Next.js란?', content: 'App Router 입문 강좌입니다.' },
   'routing-quick': {
-    id: 'routing-quick',
     title: '파일 라우팅 빠르게 훑기',
-    content: '세그먼트/중첩/동적 라우팅.',
+    content: '세그먼트/중첩/동적.',
   },
-  'scss-setup': {
-    id: 'scss-setup',
-    title: 'SCSS 적용 가이드',
-    content: '전역 SCSS + 모듈 SCSS.',
-  },
+  'scss-setup': { title: 'SCSS 적용 가이드', content: '전역/모듈 SCSS.' },
 };
 
-export async function generateStaticParams() {
-  return Object.keys(MAP).map((id) => ({ id }));
-}
+// 댓글 폼은 클라이언트 컴포넌트 → 필요 시 지연 로드
+const CommentForm = dynamic(() => import('./_components/CommentForm'), {
+  loading: () => <p>댓글 UI 로딩 중…</p>,
+  // ssr: false,
+});
 
-// 라우트 파일 전체에 ISR 적용 (선택)
-// export const revalidate = 60;
-
-export default function BlogDetailPage({ params }: PageProps) {
-  // 실제로는 fetch + revalidate/tags 조합
-  const post = MAP[params.id];
+export default async function BlogDetailPage({ params }: PageProps) {
+  const { id } = await params;
+  const post = MAP[id as keyof typeof MAP];
   if (!post) return notFound();
 
   return (
     <main style={{ padding: 24 }}>
-      <h2 style={{ marginBottom: 6 }}>{post.title}</h2>
-      <small style={{ opacity: 0.7 }}>id: {params.id}</small>
-      <p style={{ marginTop: 14, whiteSpace: 'pre-wrap' }}>{post.content}</p>
+      <h2>{post.title}</h2>
+      <p style={{ marginTop: 12 }}>{post.content}</p>
+      <CommentForm postId={id} />
     </main>
   );
 }
