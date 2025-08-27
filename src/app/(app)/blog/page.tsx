@@ -1,16 +1,10 @@
 import BlogListClientLazy from './_components/BlogListClientLazy';
 
-export type Post = {
-  id: string;
-  title: string;
-  excerpt: string;
-  cover: string;
-};
+type Post = { id: string; title: string; excerpt: string };
 
 async function getPosts(): Promise<Post[]> {
   const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/posts`, {
-    // 60초 주기로 ISR
-    next: { revalidate: 60, tags: ['posts'] },
+    next: { revalidate: 30, tags: ['posts'] },
   });
   if (!res.ok) throw new Error('목록을 불러오지 못했습니다.');
   return res.json();
