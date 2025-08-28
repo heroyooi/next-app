@@ -1,4 +1,3 @@
-// src/auth.ts
 import NextAuth from 'next-auth';
 import GitHub from 'next-auth/providers/github';
 
@@ -12,12 +11,13 @@ const authSetup = NextAuth({
   ],
   trustHost: true,
   // 필요 시 callback/session 커스터마이징
-  // callbacks: {
-  //   async session({ session, token }) {
-  //     session.user.role = "admin" as any;
-  //     return session;
-  //   },
-  // },
+  callbacks: {
+    async session({ session, token }) {
+      (session.user as any).role = 'admin';
+      // 임시 예시
+      return session;
+    },
+  },
 });
 
 // 🔑 여기서 명시적으로 빼서 export (중간 변수 사용이 안전)
